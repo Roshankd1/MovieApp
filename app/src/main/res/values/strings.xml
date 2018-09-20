@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">MovieApp</string>
+        <string name="description">Movie</string>
+        <string name="title_network_alert">Network Error</string>
+        <string name="message_network_alert">Make sure you are connected to Internet</string>
+
+        <!--Search String-->
+        <string name="search_bar">Search</string>
+
+    <!--General keys-->
+    <string name="no_movies_added">No Movies Available</string>
+
 </resources>
