@@ -22,8 +22,8 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "movie";
         public static final String COLUMN_MOVIE_ID = "movie_id";
-        public static final String COLUMN_MOVIE_NAME = "name";
-        public static final String COLUMN_MOVIE_TITLE = "original_title";
+        public static final String COLUMN_MOVIE_TITLE = "title";
+        public static final String COLUMN_MOVIE_TITLE_ORIGINAL = "original_title";
         public static final String COLUMN_MOVIE_BACKDROP_PATH = "backdrop_path";
         public static final String COLUMN_MOVIE_OVERVIEW = "overview";
         public static final String COLUMN_MOVIE_POSTER_PATH = "poster_path";
@@ -35,16 +35,16 @@ public class MovieContract {
 
         public static final String[] MOVIE_COLUMNS = {
                 COLUMN_MOVIE_ID,
-                COLUMN_MOVIE_NAME,
                 COLUMN_MOVIE_TITLE,
+                COLUMN_MOVIE_TITLE_ORIGINAL,
                 COLUMN_MOVIE_BACKDROP_PATH,
                 COLUMN_MOVIE_OVERVIEW,
                 COLUMN_MOVIE_POSTER_PATH
         };
 
         public static final int COL_MOVIE_ID = 0;
-        public static final int COL_MOVIE_NAME=1;
-        public static final int COL_MOVIE_TITLE = 2;
+        public static final int COL_MOVIE_TITLE=1;
+        public static final int COL_MOVIE_TITLE_ORIGINAL = 2;
         public static final int COL_MOVIE_BACKDROP_PATH = 3;
         public static final int COL_MOVIE_OVERVIEW = 4;
         public static final int COL_MOVIE_POSTER_PATH = 5;

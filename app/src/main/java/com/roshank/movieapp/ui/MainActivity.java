@@ -69,33 +69,17 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-        getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN, WindowManager.LayoutParams.FLAG_FULLSCREEN);
+
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
-        mProgressBar.setVisibility(View.INVISIBLE); //Hide Progressbar by Default
-        //Dealing with View Model
+        mProgressBar.setVisibility(View.INVISIBLE); //Hiding Progressbar by Default
 
-        //Define recyclerView Layout
         movie_grid_recyclerView.setLayoutManager(new GridLayoutManager(this, getResources()
                 .getInteger(R.integer.number_of_grid_columns)));
-        mAdapter = new MovieAdapter(new ArrayList<Movie>(), this);
+        mAdapter = new MovieAdapter(this,new ArrayList<Movie>(), this);
         movie_grid_recyclerView.setAdapter(mAdapter);
 
 
-        if (savedInstanceState != null) {
-            if (savedInstanceState.containsKey(EXTRA_MOVIES)) {
-                List<Movie> movies = savedInstanceState.getParcelableArrayList(EXTRA_MOVIES);
-                mAdapter.add(movies);
-                findViewById(R.id.indeterminateBar).setVisibility(View.GONE);
-
-                // For listening content updates for tow pane mode
-                if (mSearch.equals(FetchMovies.NOW_PLAYING)) {
-                    getSupportLoaderManager().initLoader(NOW_PLAYING_MOVIES_LOADER, null, this);
-                }
-            }
-            update_empty_state();
-        } else {
-            // Fetch Movies only if savedInstanceState == null
             if (NetworkUtils.networkStatus(MainActivity.this)) {
                 new FetchMovies().execute();
             } else {
@@ -105,16 +89,13 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
                 dialog.setCancelable(false);
                 dialog.show();
             }
-        }
+//        }
     }
 
     @Override
     public void onBackPressed() {
-        if (mSearch.equals(FetchMovies.NOW_PLAYING)) {
-            getSupportLoaderManager().destroyLoader(NOW_PLAYING_MOVIES_LOADER);
-        }
-        mSearch = FetchMovies.SEARCH;
-        refreshList(mSearch);
+        finish();
+
     }
 
     @Override
@@ -129,19 +110,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
 
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        ArrayList<Movie> movies = mAdapter.getMovies();
-        if (movies != null && !movies.isEmpty()) {
-            outState.putParcelableArrayList(EXTRA_MOVIES, movies);
-        }
-        outState.putString(EXTRA_SEARCH_MOVIES, mSearch);
-
-        if (!mSearch.equals(FetchMovies.SEARCH)) {
-            getSupportLoaderManager().destroyLoader(NOW_PLAYING_MOVIES_LOADER);
-        }
-    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -186,12 +154,12 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
 
         switch (sort_by) {
             case FetchMovies.NOW_PLAYING:
-                mAdapter = new MovieAdapter(new ArrayList<Movie>(), this);
+                mAdapter = new MovieAdapter(this,new ArrayList<Movie>(), this);
                 mAdapter.add(mNowPlayingList);
                 movie_grid_recyclerView.setAdapter(mAdapter);
                 break;
             case FetchMovies.SEARCH:
-                mAdapter = new MovieAdapter(new ArrayList<Movie>(), this);
+                mAdapter = new MovieAdapter(this,new ArrayList<Movie>(), this);
                 mAdapter.add(mSearchMoviesList);
                 movie_grid_recyclerView.setAdapter(mAdapter);
                 break;
@@ -203,7 +171,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
     @Override
     public void send_details(Movie movie, int position) {
 
-        Intent intent = new Intent(this, MainActivity.class);
+        Intent intent = new Intent(this, MovieDetailsActivity.class);
         intent.putExtra(MovieDetailsFragment.ARG_MOVIE, movie);
         startActivity(intent);
 
@@ -258,7 +226,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
         protected Void doInBackground(Void... voids) {
 
 
-            nowPlayingMoviesURL = "https://api.themoviedb.org/3/movie/popular?api_key=" + myApiKey + "&language=en-US&page="+ 1 + "&region="+"IT";
+            nowPlayingMoviesURL = "https://api.themoviedb.org/3/movie/now_playing?api_key=" + myApiKey + "&language=en-US";
             searchMoviesURL = "https://api.themoviedb.org/3/search/movie?api_key=" + myApiKey + "&language=en-US" + "&query=" + SEARCH_KEY;
 
 
@@ -287,16 +255,16 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
             super.onPostExecute(s);
             mProgressBar.setVisibility(View.INVISIBLE);
             //Load popular movies by default
-            mAdapter = new MovieAdapter(new ArrayList<Movie>(), MainActivity.this);
+            mAdapter = new MovieAdapter(MainActivity.this,new ArrayList<Movie>(), MainActivity.this);
             mAdapter.add(mNowPlayingList);
             movie_grid_recyclerView.setAdapter(mAdapter);
         }
     }
 
     private void update_empty_state() {
-        if (mAdapter.getItemCount() == 0) {
-            findViewById(R.id.empty_state).setVisibility(View.GONE);
-        }
+        /*if (mAdapter.getItemCount() == 0) {
+            findViewById(R.id.empty_state).setVisibility(View.VISIBLE);
+        }*/
     }
 }
 

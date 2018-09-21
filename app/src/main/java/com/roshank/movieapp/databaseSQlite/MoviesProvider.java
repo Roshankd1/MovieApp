@@ -16,7 +16,7 @@ public class MoviesProvider extends ContentProvider {
     private MovieDbHelper mOpenHelper;
 
 
-    static final int MOVIES = 200; //region specific movies now playing won't be more
+    static final int MOVIES = 100; //region specific movies now playing won't be more
 
     private static UriMatcher buildUriMatcher() {
         final UriMatcher matcher = new UriMatcher(UriMatcher.NO_MATCH);

@@ -29,6 +29,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     public static final float POSTER_ASPECT_RATIO = 1.5f;
 
     private final ArrayList<Movie> mMovies;
+    private Context mContext;
 
     private OnItemClickListener mOnItemClickListener;
 
@@ -37,8 +38,9 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     }
 
 
-    public MovieAdapter(ArrayList<Movie> movies, OnItemClickListener mItemClickListener) {
+    public MovieAdapter(Context context,ArrayList<Movie> movies, OnItemClickListener mItemClickListener) {
         mMovies = movies;
+        mContext=context;
         this.mOnItemClickListener = mItemClickListener;
     }
 
@@ -46,8 +48,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @NonNull
     @Override
     public MovieViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        Context parentContext = parent.getContext();
-        LayoutInflater inflater = LayoutInflater.from(parentContext);
+        mContext  = parent.getContext();
+        LayoutInflater inflater = LayoutInflater.from(mContext);
         View view = inflater.inflate(R.layout.movie_item, parent, false);
         final Context context = view.getContext();
 
@@ -66,7 +68,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
     @Override
     public void onBindViewHolder(@NonNull final MovieViewHolder holder, int position) {
         final Movie movie = mMovies.get(position);
-        final Context context = holder.mView.getContext();
+         mContext = holder.mView.getContext();
 
         holder.mMovie = movie;
         holder.mMovietitle.setText(movie.getOriginalTitle());
@@ -140,7 +142,7 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         }
         //Other methods
         public void cleanUp() {
-            final Context context = mView.getContext();
+            mContext = mView.getContext();
             Picasso.get().cancelRequest(mMovieThumbnail);
             mMovieThumbnail.setImageBitmap(null);
             mMovieThumbnail.setVisibility(View.INVISIBLE);
@@ -160,8 +162,8 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
         if (cursor != null && cursor.moveToFirst()) {
             do {
                 long id = cursor.getLong(MovieContract.MovieEntry.COL_MOVIE_ID);
-                String name = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_NAME);
-                String title = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_TITLE);
+                String name = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_TITLE);
+                String title = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_TITLE_ORIGINAL);
                 String backdropPath = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_BACKDROP_PATH);
                 String overview = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_OVERVIEW);
                 String posterPath = cursor.getString(MovieContract.MovieEntry.COL_MOVIE_POSTER_PATH);
