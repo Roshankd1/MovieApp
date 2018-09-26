@@ -35,7 +35,7 @@
                 android:layout_width="@dimen/search_bar_width"
                 android:layout_height="match_parent"
                 android:layout_toEndOf="@+id/back_btn"
-                android:visibility="goe"
+                android:visibility="gone"
                 android:textColorHint="@color/white"
 
                 android:focusableInTouchMode="true"
