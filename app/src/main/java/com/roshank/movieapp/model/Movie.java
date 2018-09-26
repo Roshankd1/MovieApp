@@ -8,7 +8,7 @@ import com.google.gson.annotations.SerializedName;
 
 public class Movie implements Parcelable {
 
-    public static final String LOG_TAG = Movie.class.getSimpleName();
+    public static final String TAG = Movie.class.getSimpleName();
 
 
     @SerializedName("id")

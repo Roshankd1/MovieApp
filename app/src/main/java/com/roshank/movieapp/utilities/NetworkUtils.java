@@ -4,6 +4,7 @@ import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.util.Log;
+
 import com.roshank.movieapp.databaseSQlite.MovieDbHelper;
 import com.roshank.movieapp.model.Movie;
 
@@ -21,7 +22,6 @@ import java.util.ArrayList;
 public class NetworkUtils {
 
     private static final String TAG = NetworkUtils.class.getSimpleName();
-    private static MovieDbHelper mOpenHelper;
 
     /**
      * This method returns the entire result from the HTTP response.
@@ -34,13 +34,13 @@ public class NetworkUtils {
         ArrayList<Movie> movies = new ArrayList<Movie>();
         try {
 
-            URL new_url = new URL(url); //create a url from a String
-            HttpURLConnection connection = (HttpURLConnection) new_url.openConnection(); //Opening a http connection  to the remote object
+            URL new_url = new URL(url);
+            HttpURLConnection connection = (HttpURLConnection) new_url.openConnection();
             connection.connect();
 
-            InputStream inputStream = connection.getInputStream(); //reading from the object
-            String results = IOUtils.toString(inputStream);  //IOUtils to convert inputstream objects into Strings type
-            parseJson(results,movies);
+            InputStream inputStream = connection.getInputStream();
+            String results = IOUtils.toString(inputStream);
+            parseJson(results, movies);
             inputStream.close();
 
         } catch (IOException e) {
@@ -50,12 +50,12 @@ public class NetworkUtils {
         return movies;
     }
 
-    public static void parseJson(String data, ArrayList<Movie> list){
+    public static void parseJson(String data, ArrayList<Movie> list) {
 
 
         try {
             JSONObject mainObject = new JSONObject(data);
-            Log.v(TAG,mainObject.toString());
+            Log.v(TAG, mainObject.toString());
             JSONArray resArray = mainObject.getJSONArray("results"); //Getting the results object
             for (int i = 0; i < resArray.length(); i++) {
                 JSONObject jsonObject = resArray.getJSONObject(i);
@@ -77,12 +77,12 @@ public class NetworkUtils {
     }
 
 
-        public static Boolean networkStatus(Context context){
+    public static Boolean networkStatus(Context context) {
         ConnectivityManager manager = (ConnectivityManager)
                 context.getSystemService(Context.CONNECTIVITY_SERVICE);
-            assert manager != null;
-            NetworkInfo networkInfo = manager.getActiveNetworkInfo();
-            return networkInfo != null && networkInfo.isConnected();
-        }
+        assert manager != null;
+        NetworkInfo networkInfo = manager.getActiveNetworkInfo();
+        return networkInfo != null && networkInfo.isConnected();
+    }
 
 }

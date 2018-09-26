@@ -25,8 +25,8 @@ import butterknife.ButterKnife;
 
 public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHolder> {
 
-    private final static String LOG_TAG = MovieAdapter.class.getSimpleName();
-    public static final float POSTER_ASPECT_RATIO = 1.5f;
+    private final static String TAG = MovieAdapter.class.getSimpleName();
+    private static final float POSTER_ASPECT_RATIO = 1.5f;
 
     private final ArrayList<Movie> mMovies;
     private Context mContext;
@@ -173,10 +173,6 @@ public class MovieAdapter extends RecyclerView.Adapter<MovieAdapter.MovieViewHol
 
         }
         notifyDataSetChanged();
-    }
-
-    public ArrayList<Movie> getMovies() {
-        return mMovies;
     }
 
 

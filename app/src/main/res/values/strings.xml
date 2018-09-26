@@ -7,6 +7,7 @@
         <!--Search String-->
         <string name="search_bar">Search</string>
     <string name="no_network_exit">Exit and Retry</string>
+    <string name="type_here">Type here</string>
 
     <!--General keys-->
     <string name="no_movies_added">No Movies Available</string>

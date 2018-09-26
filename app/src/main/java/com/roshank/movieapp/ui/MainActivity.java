@@ -1,9 +1,7 @@
 package com.roshank.movieapp.ui;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.database.Cursor;
 import android.support.v4.content.CursorLoader;
 import android.os.AsyncTask;
@@ -14,18 +12,10 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.support.v7.widget.Toolbar;
 import android.text.Editable;
 import android.text.TextUtils;
 import android.text.TextWatcher;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.TextureView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowManager;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
@@ -39,18 +29,14 @@ import com.roshank.movieapp.databaseSQlite.MovieContract;
 import com.roshank.movieapp.model.Movie;
 import com.roshank.movieapp.utilities.NetworkUtils;
 
-import org.w3c.dom.Text;
-
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.List;
+
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
 import static android.view.View.GONE;
-import static com.roshank.movieapp.ui.MainActivity.FetchMovies.NOW_PLAYING;
-import static com.roshank.movieapp.ui.MainActivity.FetchMovies.SEARCH;
 
 
 public class MainActivity extends AppCompatActivity implements MainActivityView, MovieAdapter.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
@@ -61,12 +47,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     String SEARCH_KEY = "";
 
     String myApiKey = BuildConfig.API_KEY;
-    private static final int NOW_PLAYING_MOVIES_LOADER = 0;
     @BindView(R.id.recycled_movie_grid)
     RecyclerView movie_grid_recyclerView;
 
-    @BindView(R.id.toolbar)
-    Toolbar mToolbar;
     @BindView(R.id.back_btn)
     ImageView mBackBtn;
     @BindView(R.id.toolbar_title)
@@ -80,15 +63,14 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     @BindView(R.id.indeterminateBar)
     ProgressBar mProgressBar;
 
-    String nowPlayingMoviesURL;
-    String searchMoviesURL;
 
-    private String search;
     ArrayList<Movie> mNowPlayingList;
     ArrayList<Movie> mSearchMoviesList;
 
     private MovieAdapter mAdapter;
-    private String sortBy = NOW_PLAYING;
+
+    private final static String NOW_PLAYING = "now_playing";
+    private final static String SEARCH = "search";
 
 
     @Override
@@ -98,9 +80,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
         ButterKnife.bind(this);
         mProgressBar.setVisibility(View.INVISIBLE); //Hiding Progressbar by Default
 
-        setSupportActionBar(mToolbar);
-        setTitle(null);
+//        setSupportActionBar(mToolbar);
+//        setTitle(null);
         mToolbarTitle.setText(getString(R.string.app_name));
+        mProgressBar.getIndeterminateDrawable().setColorFilter(getResources().getColor(R.color.colorAccent), android.graphics.PorterDuff.Mode.MULTIPLY);
 
         movie_grid_recyclerView.setLayoutManager(new GridLayoutManager(this, getResources()
                 .getInteger(R.integer.number_of_grid_columns)));
@@ -149,19 +132,19 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
 
                 if (TextUtils.isEmpty(charSequence)) {
-
                     initView();
                     refreshList(NOW_PLAYING);
                 } else {
                     SEARCH_KEY = charSequence.toString();
                     executeMovie();
-//                    refreshList(SEARCH);
                 }
             }
 
             @Override
             public void afterTextChanged(Editable editable) {
-
+                if (editable.toString().isEmpty()) {
+                    refreshList(NOW_PLAYING);
+                }
             }
         });
 
@@ -228,8 +211,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     @SuppressLint("StaticFieldLeak")
     public class FetchMovies extends AsyncTask<Void, Void, Void> {
 
-        public final static String NOW_PLAYING = "now_playing";
-        public final static String SEARCH = "search";
+
+        private String nowPlayingMoviesURL;
+        private String searchMoviesURL;
 
         @Override
         protected void onPreExecute() {
@@ -273,7 +257,10 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
             mAdapter = new MovieAdapter(MainActivity.this, new ArrayList<Movie>(), MainActivity.this);
             mAdapter.add(mNowPlayingList);
             movie_grid_recyclerView.setAdapter(mAdapter);
-            refreshList(SEARCH);
+
+            if (!mSearchText.getText().toString().isEmpty()) {
+                refreshList(SEARCH);
+            }
         }
     }
 
@@ -306,14 +293,9 @@ public class MainActivity extends AppCompatActivity implements MainActivityView,
     @Override
     public void onBackBtnPressed() {
         initView();
+        mSearchText.setText(null);
         refreshList(NOW_PLAYING);
     }
-
-//    private void loadSearchList(){
-//        mAdapter=new MovieAdapter(this,new ArrayList<Movie>(),this);
-//        mAdapter.add(mSearchMoviesList);
-//        movie_grid_recyclerView.setAdapter(mAdapter);
-//    }
 
     private void refreshList(String sortBy) {
         switch (sortBy) {
