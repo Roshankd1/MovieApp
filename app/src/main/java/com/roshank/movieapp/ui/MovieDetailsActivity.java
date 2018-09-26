@@ -8,7 +8,9 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
+import android.view.View;
 import android.view.WindowManager;
+import android.widget.ProgressBar;
 
 import com.roshank.movieapp.R;
 import com.roshank.movieapp.model.Movie;
@@ -23,6 +25,7 @@ public class MovieDetailsActivity extends AppCompatActivity{
 
     @BindView(R.id.detail_toolbar)
     Toolbar mToolbar;
+
 
 
     @Override
@@ -40,11 +43,16 @@ public class MovieDetailsActivity extends AppCompatActivity{
         }
 
         if (savedInstanceState == null) {
+
             Bundle arguments = new Bundle();
+
             arguments.putParcelable(MovieDetailsFragment.ARG_MOVIE,
                     getIntent().getParcelableExtra(MovieDetailsFragment.ARG_MOVIE));
+
             MovieDetailsFragment fragment = new MovieDetailsFragment();
+
             fragment.setArguments(arguments);
+
             getSupportFragmentManager().beginTransaction()
                     .add(R.id.movie_detail_container, fragment)
                     .commit();

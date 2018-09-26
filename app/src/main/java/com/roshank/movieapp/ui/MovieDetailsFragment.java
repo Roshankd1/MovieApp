@@ -39,8 +39,6 @@ public class MovieDetailsFragment extends Fragment {
         @BindView(R.id.movie_overview)
         TextView mMovieOverviewView;
 
-        @BindView(R.id.movie_poster)
-        ImageView mMoviePosterView;
 
 
 
@@ -87,10 +85,10 @@ public class MovieDetailsFragment extends Fragment {
 
             mMovieTitleView.setText(mMovie.getOriginalTitle());
             mMovieOverviewView.setText(mMovie.getOverview());
-            Picasso.get()
+            /*Picasso.get()
                     .load(mMovie.getPosterPath())
                     .config(Bitmap.Config.RGB_565)
-                    .into(mMoviePosterView);
+                    .into(mMoviePosterView);*/
 
             Log.d(LOG_TAG, MovieContract.MovieEntry.CONTENT_URI.toString());
             /*IF savedInstanceState == null*/

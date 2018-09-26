@@ -1,37 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.constraint.ConstraintLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context=".ui.MainActivity">
 
-    <ProgressBar
-        android:id="@+id/indeterminateBar"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:layout_marginBottom="8dp"
-        android:layout_marginEnd="8dp"
-        android:layout_marginStart="168dp"
-        android:layout_marginTop="228dp"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"/>
-
-
-
-    <android.support.v7.widget.RecyclerView
-        xmlns:android="http://schemas.android.com/apk/res/android"
-        xmlns:app="http://schemas.android.com/apk/res-auto"
-        android:id="@+id/recycled_movie_grid"
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:clipToPadding="false"
-        android:scrollbars="vertical"
-        tools:listitem="@layout/movie_item"
-        app:layoutManager="android.support.v7.widget.LinearLayoutManager"/>
+        android:layout_height="match_parent">
 
-    <include layout="@layout/movies_list_empty_state_container"/>
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
+            android:gravity="end"
+            android:layout_alignParentEnd="true"
+            android:layout_width="match_parent"
+            android:layout_height="?attr/actionBarSize"
+            android:background="@color/colorPrimary" >
+            <ImageView
+                android:id="@+id/back_btn"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_alignParentStart="true"
+                android:padding="@dimen/detail_title_left_padding"
+                android:src="@drawable/ic_arrow_back_black_24dp"/>
+            <TextView
+                android:id="@+id/toolbar_title"
+                android:layout_toEndOf="@+id/back_btn"
+                android:textColor="@color/white"
+                android:textSize="@dimen/toolbar_title"
+                android:layout_width="wrap_content"
+
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/search_text"
+                android:layout_width="200dp"
+                android:layout_height="match_parent"
+
+                android:visibility="visible"
+                android:gravity="start"
+                android:inputType="textAutoComplete"
+                >
+            </EditText>
+
+            <ImageView
+                android:id="@+id/search_btn"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:padding="@dimen/detail_title_left_padding"
+                android:src="@drawable/ic_search_black_24dp"/>
+
+            <ImageView
+                android:id="@+id/close_btn"
+                android:visibility="gone"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentEnd="true"
+                android:padding="@dimen/detail_title_left_padding"
+                android:src="@drawable/ic_close_black_24dp"/>
+        </android.support.v7.widget.Toolbar>
+
+        <ProgressBar
+            android:id="@+id/indeterminateBar"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:layout_marginBottom="8dp"
+            android:layout_marginEnd="8dp"
+            android:layout_marginStart="168dp"
+            android:layout_marginTop="228dp"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent" />
+
+        <android.support.v7.widget.RecyclerView xmlns:android="http://schemas.android.com/apk/res/android"
+            xmlns:app="http://schemas.android.com/apk/res-auto"
+            android:id="@+id/recycled_movie_grid"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_below="@+id/toolbar"
+            android:clipToPadding="false"
+            android:scrollbars="vertical"
+            app:layoutManager="android.support.v7.widget.LinearLayoutManager"
+            tools:listitem="@layout/movie_item" />
+
+        <include layout="@layout/movies_list_empty_state_container" />
+    </RelativeLayout>
 
 </android.support.constraint.ConstraintLayout>

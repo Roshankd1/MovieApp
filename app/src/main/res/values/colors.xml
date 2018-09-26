@@ -6,4 +6,5 @@
     <color name="movie_overview_text_color">@android:color/black</color>
     <color name="movie_review_text_color">@android:color/black</color>
     <color name="red">#F44336</color>
+    <color name="white">#FFF</color>
 </resources>

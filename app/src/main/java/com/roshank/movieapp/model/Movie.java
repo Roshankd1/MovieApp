@@ -24,6 +24,16 @@ public class Movie implements Parcelable {
     @SerializedName("poster_path")
     private String posterPath;
 
+    private static String mSearchText;
+
+    public static String getmSearchText() {
+        return mSearchText;
+    }
+
+    public static void setmSearchText(String SearchText) {
+        mSearchText = SearchText;
+    }
+
     public Movie(){
 
     }

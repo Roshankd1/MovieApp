@@ -1,7 +1,9 @@
 package com.roshank.movieapp.ui;
 
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.support.v4.content.CursorLoader;
 import android.os.AsyncTask;
@@ -12,13 +14,22 @@ import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
+import android.text.Editable;
+import android.text.TextUtils;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.TextureView;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 
 
 import com.roshank.movieapp.BuildConfig;
@@ -28,6 +39,8 @@ import com.roshank.movieapp.databaseSQlite.MovieContract;
 import com.roshank.movieapp.model.Movie;
 import com.roshank.movieapp.utilities.NetworkUtils;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,61 +48,124 @@ import java.util.List;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
+import static android.view.View.GONE;
+import static com.roshank.movieapp.ui.MainActivity.FetchMovies.NOW_PLAYING;
+import static com.roshank.movieapp.ui.MainActivity.FetchMovies.SEARCH;
 
-public class MainActivity extends AppCompatActivity implements MovieAdapter.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
+
+public class MainActivity extends AppCompatActivity implements MainActivityView, MovieAdapter.OnItemClickListener, LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = MainActivity.class.getSimpleName();
 
 
-    public static final String SEARCH_KEY = "search_key";
+    String SEARCH_KEY = "";
 
     String myApiKey = BuildConfig.API_KEY;
     private static final int NOW_PLAYING_MOVIES_LOADER = 0;
     @BindView(R.id.recycled_movie_grid)
     RecyclerView movie_grid_recyclerView;
 
+    @BindView(R.id.toolbar)
+    Toolbar mToolbar;
+    @BindView(R.id.back_btn)
+    ImageView mBackBtn;
+    @BindView(R.id.toolbar_title)
+    TextView mToolbarTitle;
+    @BindView(R.id.search_text)
+    EditText mSearchText;
+    @BindView(R.id.search_btn)
+    ImageView mSearchBtn;
+    @BindView(R.id.close_btn)
+    ImageView mCloseBtn;
     @BindView(R.id.indeterminateBar)
     ProgressBar mProgressBar;
 
     String nowPlayingMoviesURL;
     String searchMoviesURL;
 
+    private String search;
     ArrayList<Movie> mNowPlayingList;
     ArrayList<Movie> mSearchMoviesList;
 
-
     private MovieAdapter mAdapter;
-    private String mSearch = FetchMovies.SEARCH;
-
-    private static final String EXTRA_MOVIES = "EXTRA_MOVIES";
-    private static final String EXTRA_SEARCH_MOVIES = "EXTRA_SEARCH_MOVIES";
+    private String sortBy = NOW_PLAYING;
 
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        getWindow().requestFeature(Window.FEATURE_NO_TITLE);
-
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
         mProgressBar.setVisibility(View.INVISIBLE); //Hiding Progressbar by Default
 
+        setSupportActionBar(mToolbar);
+        setTitle(null);
+        mToolbarTitle.setText(getString(R.string.app_name));
+
         movie_grid_recyclerView.setLayoutManager(new GridLayoutManager(this, getResources()
                 .getInteger(R.integer.number_of_grid_columns)));
-        mAdapter = new MovieAdapter(this,new ArrayList<Movie>(), this);
+
+        mAdapter = new MovieAdapter(this, new ArrayList<Movie>(), this);
         movie_grid_recyclerView.setAdapter(mAdapter);
 
 
-            if (NetworkUtils.networkStatus(MainActivity.this)) {
-                new FetchMovies().execute();
-            } else {
-                AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
-                dialog.setTitle(getString(R.string.title_network_alert));
-                dialog.setMessage(getString(R.string.message_network_alert));
-                dialog.setCancelable(false);
-                dialog.show();
+        if (NetworkUtils.networkStatus(MainActivity.this)) {
+            new FetchMovies().execute();
+        } else {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+            dialog.setTitle(getString(R.string.title_network_alert));
+            dialog.setMessage(getString(R.string.message_network_alert));
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+
+        mSearchBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onSearchPressed();
             }
-//        }
+        });
+        mCloseBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onCancelPressed();
+            }
+        });
+
+        mBackBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                onBackBtnPressed();
+            }
+        });
+
+        mSearchText.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+                if (TextUtils.isEmpty(charSequence)) {
+
+                    initView();
+                    refreshList(NOW_PLAYING);
+                } else {
+                    SEARCH_KEY = charSequence.toString();
+                    executeMovie();
+//                    refreshList(SEARCH);
+                }
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+
+            }
+        });
+
+
     }
 
     @Override
@@ -98,75 +174,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
 
     }
 
-    @Override
-    protected void onStart() {
-        super.onStart();
-
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        MenuInflater inflater = getMenuInflater();
-        inflater.inflate(R.menu.menu_main_activity,menu);
-
-        switch (mSearch) {
-            case FetchMovies.NOW_PLAYING:
-
-                break;
-            case FetchMovies.SEARCH:
-
-                break;
-        }
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.search_btn:
-                if (mSearch.equals(FetchMovies.NOW_PLAYING)) {
-                    getSupportLoaderManager().destroyLoader(NOW_PLAYING_MOVIES_LOADER);
-                }
-                mSearch = FetchMovies.NOW_PLAYING;
-                refreshList(mSearch);
-                break;
-            case R.id.cancel_btn:
-                if (mSearch.equals(FetchMovies.SEARCH)) {
-                    getSupportLoaderManager().destroyLoader(NOW_PLAYING_MOVIES_LOADER);
-                }
-                mSearch = FetchMovies.SEARCH;
-                refreshList(mSearch);
-                break;
-            default:
-                break;
-        }
-        return super.onOptionsItemSelected(item);
-    }
-
-    private void refreshList(String sort_by) {
-
-        switch (sort_by) {
-            case FetchMovies.NOW_PLAYING:
-                mAdapter = new MovieAdapter(this,new ArrayList<Movie>(), this);
-                mAdapter.add(mNowPlayingList);
-                movie_grid_recyclerView.setAdapter(mAdapter);
-                break;
-            case FetchMovies.SEARCH:
-                mAdapter = new MovieAdapter(this,new ArrayList<Movie>(), this);
-                mAdapter.add(mSearchMoviesList);
-                movie_grid_recyclerView.setAdapter(mAdapter);
-                break;
-        }
-
-
-    }
 
     @Override
     public void send_details(Movie movie, int position) {
@@ -192,8 +199,7 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
     @Override
     public void onLoadFinished(@NonNull android.support.v4.content.Loader<Cursor> loader, Cursor cursor) {
         mAdapter.add(cursor);
-        update_empty_state();
-        findViewById(R.id.indeterminateBar).setVisibility(View.GONE);
+        findViewById(R.id.indeterminateBar).setVisibility(GONE);
     }
 
     @Override
@@ -207,12 +213,22 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
 
     }
 
+    private void executeMovie() {
+        if (NetworkUtils.networkStatus(MainActivity.this)) {
+            new FetchMovies().execute();
+        } else {
+            AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
+            dialog.setTitle(getString(R.string.title_network_alert));
+            dialog.setMessage(getString(R.string.message_network_alert));
+            dialog.setCancelable(false);
+            dialog.show();
+        }
+    }
 
-    //AsyncTask
     @SuppressLint("StaticFieldLeak")
     public class FetchMovies extends AsyncTask<Void, Void, Void> {
 
-        public final static String NOW_PLAYING = "popular";
+        public final static String NOW_PLAYING = "now_playing";
         public final static String SEARCH = "search";
 
         @Override
@@ -225,7 +241,6 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
         @Override
         protected Void doInBackground(Void... voids) {
 
-
             nowPlayingMoviesURL = "https://api.themoviedb.org/3/movie/now_playing?api_key=" + myApiKey + "&language=en-US";
             searchMoviesURL = "https://api.themoviedb.org/3/search/movie?api_key=" + myApiKey + "&language=en-US" + "&query=" + SEARCH_KEY;
 
@@ -234,8 +249,8 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
             mSearchMoviesList = new ArrayList<>();
             try {
                 if (NetworkUtils.networkStatus(MainActivity.this)) {
-                    mNowPlayingList = NetworkUtils.fetchData(nowPlayingMoviesURL); //Get popular movies
-                    mSearchMoviesList = NetworkUtils.fetchData(searchMoviesURL); //Get top rated movies
+                    mNowPlayingList = NetworkUtils.fetchData(nowPlayingMoviesURL); //Get now playing movies
+                    mSearchMoviesList = NetworkUtils.fetchData(searchMoviesURL); //Get search movies
 
                 } else {
                     AlertDialog.Builder dialog = new AlertDialog.Builder(MainActivity.this);
@@ -255,16 +270,65 @@ public class MainActivity extends AppCompatActivity implements MovieAdapter.OnIt
             super.onPostExecute(s);
             mProgressBar.setVisibility(View.INVISIBLE);
             //Load popular movies by default
-            mAdapter = new MovieAdapter(MainActivity.this,new ArrayList<Movie>(), MainActivity.this);
+            mAdapter = new MovieAdapter(MainActivity.this, new ArrayList<Movie>(), MainActivity.this);
             mAdapter.add(mNowPlayingList);
             movie_grid_recyclerView.setAdapter(mAdapter);
+            refreshList(SEARCH);
         }
     }
 
-    private void update_empty_state() {
-        /*if (mAdapter.getItemCount() == 0) {
-            findViewById(R.id.empty_state).setVisibility(View.VISIBLE);
-        }*/
+    @Override
+    public void initView() {
+        mBackBtn.setVisibility(View.GONE);
+        mSearchText.setVisibility(View.GONE);
+        mCloseBtn.setVisibility(View.GONE);
+        mSearchBtn.setVisibility(View.VISIBLE);
+        mToolbarTitle.setVisibility(View.VISIBLE);
+
     }
+
+    @Override
+    public void onSearchPressed() {
+        mSearchBtn.setVisibility(View.GONE);
+        mBackBtn.setVisibility(View.VISIBLE);
+        mCloseBtn.setVisibility(View.VISIBLE);
+        mToolbarTitle.setVisibility(View.GONE);
+        mSearchText.setVisibility(View.VISIBLE);
+    }
+
+    @Override
+    public void onCancelPressed() {
+        initView();
+        refreshList(NOW_PLAYING);
+        mSearchText.setText(null);
+    }
+
+    @Override
+    public void onBackBtnPressed() {
+        initView();
+        refreshList(NOW_PLAYING);
+    }
+
+//    private void loadSearchList(){
+//        mAdapter=new MovieAdapter(this,new ArrayList<Movie>(),this);
+//        mAdapter.add(mSearchMoviesList);
+//        movie_grid_recyclerView.setAdapter(mAdapter);
+//    }
+
+    private void refreshList(String sortBy) {
+        switch (sortBy) {
+            case NOW_PLAYING:
+                mAdapter = new MovieAdapter(this, new ArrayList<Movie>(), this);
+                mAdapter.add(mNowPlayingList);
+                movie_grid_recyclerView.setAdapter(mAdapter);
+                break;
+            case SEARCH:
+                mAdapter = new MovieAdapter(this, new ArrayList<Movie>(), this);
+                mAdapter.add(mSearchMoviesList);
+                movie_grid_recyclerView.setAdapter(mAdapter);
+                break;
+        }
+    }
+
 }
 

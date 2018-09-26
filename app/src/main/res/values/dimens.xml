@@ -5,8 +5,11 @@
 <integer name="number_of_grid_columns">2</integer>
 <string name="poster_url">http://image.tmdb.org/t/p/w342</string>
 
-<dimen name="app_bar_height">200dp</dimen>
+<dimen name="app_bar_height">300dp</dimen>
     <dimen name="column_width">200dp</dimen>
+
+    <dimen name="toolbar_title">20sp</dimen>
+    <dimen name="icon_width">40dp</dimen>
 
 <!--Movie Details dimens-->
 <dimen name="vertical_margin">16dp</dimen>
