@@ -86,7 +86,6 @@
             app:layoutManager="android.support.v7.widget.LinearLayoutManager"
             tools:listitem="@layout/movie_item" />
 
-        <include layout="@layout/movies_list_empty_state_container"/>
 
 
 </RelativeLayout>
